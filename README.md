@@ -1,1 +1,1 @@
-# gemini-ai
+# edution-tutor
