@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Education Tutor Bot</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+display:flex;
+height:100vh;
+}
+
+.sidebar{
+width:250px;
+background:#202123;
+color:white;
+padding:10px;
+overflow-y:auto;
+}
+
+.sidebar h3{
+text-align:center;
+}
+
+.history-item{
+padding:8px;
+border-bottom:1px solid #444;
+font-size:14px;
+}
+
+.chat-container{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+#chat-box{
+flex:1;
+padding:15px;
+overflow-y:auto;
+background:#f5f5f5;
+}
+
+.user{
+text-align:right;
+color:blue;
+margin:6px;
+}
+
+.bot{
+text-align:left;
+color:green;
+margin:6px;
+}
+
+.input-area{
+display:flex;
+padding:10px;
+background:white;
+border-top:1px solid #ddd;
+}
+
+input{
+flex:1;
+padding:10px;
+}
+
+button{
+padding:10px 20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h3>Chat History</h3>
+
+<div id="history"></div>
+
+</div>
+
+
+<div class="chat-container">
+
+<div id="chat-box"></div>
+
+<div class="input-area">
+<input type="text" id="user-input" placeholder="Ask education question...">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+
+<script>
+
+loadHistory()
+
+async function loadHistory(){
+
+const res = await fetch("/history")
+
+const data = await res.json()
+
+let historyDiv=document.getElementById("history")
+
+historyDiv.innerHTML=""
+
+data.forEach(chat=>{
+
+historyDiv.innerHTML += `
+<div class="history-item">
+${chat.user}
+</div>
+`
+
+})
+
+}
+
+
+async function sendMessage(){
+
+let input=document.getElementById("user-input")
+let message=input.value
+
+if(message.trim()==="") return
+
+let chatBox=document.getElementById("chat-box")
+
+chatBox.innerHTML+=`<div class="user"><b>You:</b> ${message}</div>`
+
+input.value=""
+
+const response=await fetch("/chat",{
+
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:message})
+
+})
+
+const data=await response.json()
+
+chatBox.innerHTML+=`<div class="bot"><b>Bot:</b> ${data.reply}</div>`
+
+chatBox.scrollTop=chatBox.scrollHeight
+
+loadHistory()
+
+}
+
+</script>
+
+</body>
+</html>
